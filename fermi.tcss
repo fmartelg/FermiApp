@@ -1,0 +1,5 @@
+#hello {
+    content-align: center middle;
+    text-style: bold;
+    border: solid green;
+}
