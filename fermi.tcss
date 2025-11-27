@@ -1,5 +1,49 @@
-#hello {
-    content-align: center middle;
+/* Fermi Calculator Styles */
+
+Screen {
+    background: $surface;
+}
+
+#main {
+    height: 100%;
+}
+
+#input-panel, #output-panel {
+    width: 1fr;
+    height: 100%;
+    border: solid $primary;
+}
+
+#input-panel {
+    margin-right: 1;
+}
+
+.panel-title {
+    background: $primary;
+    color: $text;
+    padding: 1;
+    text-align: center;
     text-style: bold;
-    border: solid green;
+}
+
+#input {
+    height: 1fr;
+    margin: 1;
+}
+
+#output {
+    height: 1fr;
+    padding: 1;
+    overflow-y: auto;
+    background: $surface-darken-1;
+}
+
+#calc-btn {
+    dock: bottom;
+    margin: 1;
+    width: 100%;
+}
+
+Footer {
+    background: $primary-darken-2;
 }
