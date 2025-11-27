@@ -2,6 +2,7 @@
 from textual.app import App, ComposeResult
 from textual.widgets import TextArea, Static, Header, Footer, Button
 from textual.containers import Horizontal, Vertical
+from textual import events
 from fermi_engine import FermiEngine
 from fermi_formatter import format_number
 
@@ -11,7 +12,7 @@ class FermiApp(App):
     
     CSS_PATH = "fermi.tcss"
     BINDINGS = [
-        ("ctrl+enter", "calculate", "Calculate"),
+        ("f5", "calculate", "Calculate"),
         ("ctrl+q", "quit", "Quit"),
     ]
     
