@@ -2,9 +2,9 @@
 from textual.app import App, ComposeResult
 from textual.widgets import TextArea, Static, Header, Footer, Button
 from textual.containers import Horizontal, Vertical
-from textual import events
+import numpy as np
 from fermi_engine import FermiEngine
-from fermi_formatter import format_number
+from fermi_formatter import format_number, format_distribution
 
 
 class FermiApp(App):
@@ -60,13 +60,7 @@ class FermiApp(App):
     def format_results(self, input_text: str, results: list) -> str:
         """
         Format results for display with => notation.
-        
-        Args:
-            input_text: Original input text
-            results: List of result dictionaries from engine
-        
-        Returns:
-            Formatted string showing input lines with results
+        Handles both scalars and distributions.
         """
         input_lines = input_text.split("\n")
         output_lines = []
@@ -77,11 +71,18 @@ class FermiApp(App):
             
             # Add the result on the next line with =>
             if result["type"] == "assignment":
-                formatted_value = format_number(result["value"])
+                value = result["value"]
+                
+                # Check if value is array (distribution) or scalar
+                if isinstance(value, np.ndarray):
+                    formatted_value = format_distribution(value)
+                else:
+                    formatted_value = format_number(value)
+                
                 output_lines.append(f"=> {formatted_value}")
+            
             elif result["type"] == "error":
                 output_lines.append(f"=> ERROR: {result['message']}")
-            # Comments and empty lines don't get => lines
         
         return "\n".join(output_lines)
 
