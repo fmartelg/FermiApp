@@ -70,7 +70,7 @@ class FermiApp(App):
         input_lines = input_text.split("\n")
         output_lines = []
         
-        for i, (line, result) in enumerate(zip(input_lines, results)):
+        for line, result in zip(input_lines, results):
             # Add the input line
             output_lines.append(line)
             
@@ -81,11 +81,6 @@ class FermiApp(App):
             elif result["type"] == "error":
                 output_lines.append(f"=> ERROR: {result['message']}")
             # Comments and empty lines don't get => lines
-            
-            # Add blank line between entries for readability
-            # (except after the last line)
-            if i < len(input_lines) - 1:
-                output_lines.append("")
         
         return "\n".join(output_lines)
 
