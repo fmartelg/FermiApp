@@ -1,5 +1,6 @@
 """Tests for fermi_engine module"""
 import pytest
+import numpy as np
 from fermi_engine import FermiEngine
 from fermi_parser import ParseError
 
@@ -56,6 +57,92 @@ class TestEvaluateExpression:
         assert engine.evaluate_expression("2.5K") == 2500.0
 
 
+class TestEvaluateDistributions:
+    """Tests for evaluating uniform distributions"""
+    
+    def test_evaluate_uniform_distribution(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("2M 3M")
+        
+        assert isinstance(result, np.ndarray)
+        assert len(result) == 100000
+        assert result.min() >= 2e6
+        assert result.max() <= 3e6
+    
+    def test_evaluate_uniform_simple(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("10 20")
+        
+        assert isinstance(result, np.ndarray)
+        assert len(result) == 100000
+        assert result.min() >= 10
+        assert result.max() <= 20
+    
+    def test_scalar_times_distribution(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        engine.variables["x"] = 10.0
+        result = engine.evaluate_expression("x * 5 10")
+        
+        assert isinstance(result, np.ndarray)
+        assert len(result) == 100000
+        # Result should be in range 50-100 (10 * 5 to 10 * 10)
+        assert result.min() >= 50
+        assert result.max() <= 100
+    
+    def test_distribution_times_scalar(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("5 10 * 2")
+        
+        assert isinstance(result, np.ndarray)
+        # Result should be in range 10-20
+        assert result.min() >= 10
+        assert result.max() <= 20
+    
+    def test_distribution_arithmetic(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("10 20 + 5 10")
+        
+        assert isinstance(result, np.ndarray)
+        # Result should be in range 15-30
+        assert result.min() >= 15
+        assert result.max() <= 30
+    
+    def test_distribution_subtraction(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("20 30 - 5 10")
+        
+        assert isinstance(result, np.ndarray)
+        # Result should be in range 10-25
+        assert result.min() >= 10
+        assert result.max() <= 25
+    
+    def test_distribution_multiplication(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("2 3 * 4 5")
+        
+        assert isinstance(result, np.ndarray)
+        # Result should be in range 8-15
+        assert result.min() >= 8
+        assert result.max() <= 15
+    
+    def test_distribution_division(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.evaluate_expression("20 30 / 2 5")
+        
+        assert isinstance(result, np.ndarray)
+        # Result should be in range 4-15 (20/5 to 30/2)
+        assert result.min() >= 4
+        assert result.max() <= 15
+
+
 class TestExecuteLine:
     """Tests for execute_line method"""
     
@@ -108,6 +195,16 @@ class TestExecuteLine:
         engine = FermiEngine()
         result = engine.execute_line("invalid syntax")
         assert result["type"] == "error"
+    
+    def test_execute_distribution_assignment(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        result = engine.execute_line("x = 2M 3M")
+        
+        assert result["type"] == "assignment"
+        assert result["var"] == "x"
+        assert isinstance(result["value"], np.ndarray)
+        assert len(result["value"]) == 100000
 
 
 class TestExecuteModel:
@@ -153,6 +250,36 @@ households = population / people_per_household
         assert engine.variables["x"] == 10.0
         assert engine.variables["y"] == 20.0
         assert engine.variables["z"] == 30.0
+    
+    def test_execute_model_with_distributions(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        text = "a = 10 20\nb = 5 10\nc = a + b"
+        results = engine.execute_model(text)
+        
+        assert len(results) == 3
+        assert isinstance(results[0]["value"], np.ndarray)
+        assert isinstance(results[1]["value"], np.ndarray)
+        assert isinstance(results[2]["value"], np.ndarray)
+    
+    def test_execute_model_mixed_scalar_distribution(self):
+        np.random.seed(42)
+        engine = FermiEngine()
+        text = """
+population = 2M 3M
+households = population / 2.5
+        """.strip()
+        
+        results = engine.execute_model(text)
+        
+        assert len(results) == 2
+        assert isinstance(results[0]["value"], np.ndarray)
+        assert isinstance(results[1]["value"], np.ndarray)
+        
+        # Check that households is in expected range (0.8M - 1.2M)
+        households = results[1]["value"]
+        assert households.min() >= 800000
+        assert households.max() <= 1200000
 
 
 class TestClear:

@@ -1,5 +1,6 @@
 """Core evaluation engine for Fermi Calculator"""
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
+import numpy as np
 from fermi_parser import parse_line, tokenize, ParseError
 from fermi_formatter import format_number
 
@@ -9,17 +10,23 @@ class FermiEngine:
     
     def __init__(self):
         """Initialize the engine with empty variable storage"""
-        self.variables: Dict[str, float] = {}
+        self.variables: Dict[str, Union[float, np.ndarray]] = {}
+        self.num_samples = 100000  # Monte Carlo sample size
     
-    def evaluate_expression(self, expr: str) -> float:
+    def _sample_uniform(self, min_val: float, max_val: float) -> np.ndarray:
+        """Generate uniform samples between min and max"""
+        return np.random.uniform(min_val, max_val, self.num_samples)
+    
+    def evaluate_expression(self, expr: str) -> Union[float, np.ndarray]:
         """
         Evaluate an expression with variables.
         
         Args:
-            expr: Expression string (e.g., "x * 2", "10 + 20")
+            expr: Expression string (e.g., "x * 2", "10 + 20", "2M 3M")
         
         Returns:
-            Computed float value
+            float: If expression is deterministic (no distributions)
+            np.ndarray: If expression contains distributions (100K samples)
         
         Raises:
             ParseError: If expression is invalid
@@ -32,6 +39,9 @@ class FermiEngine:
             >>> engine.variables["x"] = 10
             >>> engine.evaluate_expression("x * 2")
             20.0
+            >>> result = engine.evaluate_expression("2M 3M")
+            >>> isinstance(result, np.ndarray)
+            True
         """
         # Tokenize the expression
         tokens = tokenize(expr)
@@ -40,34 +50,48 @@ class FermiEngine:
             raise ParseError("Empty expression")
         
         # Convert tokens to evaluable form
-        # Build a simple expression evaluator
         return self._evaluate_tokens(tokens)
     
-    def _evaluate_tokens(self, tokens: List[tuple]) -> float:
+    def _evaluate_tokens(self, tokens: List[tuple]) -> Union[float, np.ndarray]:
         """
         Evaluate a list of tokens using operator precedence.
         
-        Handles: +, -, *, /, parentheses
-        Uses standard math precedence: () > * / > + -
+        Handles: +, -, *, /, parentheses, and UNIFORM distributions
+        Strategy:
+        - UNIFORM tokens → generate numpy arrays
+        - NUMBER tokens → stay as floats
+        - VARIABLE tokens → look up (can be float or array)
+        - Operations work element-wise when arrays involved
         """
-        # Convert tokens to postfix notation (Shunting Yard algorithm)
-        # Then evaluate postfix
-        
-        # For now, use a simpler approach: convert to Python expression
-        # and use eval with restricted namespace
-        
         expr_parts = []
-        for token_type, value in tokens:
+        
+        for token in tokens:
+            token_type = token[0]
+            
             if token_type == "NUMBER":
+                value = token[1]
                 expr_parts.append(str(value))
+            
+            elif token_type == "UNIFORM":
+                min_val, max_val = token[1], token[2]
+                samples = self._sample_uniform(min_val, max_val)
+                # Store array in a temp variable for eval
+                var_name = f"_dist_{len(expr_parts)}"
+                self.variables[var_name] = samples
+                expr_parts.append(var_name)
+            
             elif token_type == "VARIABLE":
-                if value not in self.variables:
-                    raise NameError(f"Undefined variable: {value}")
-                expr_parts.append(str(self.variables[value]))
+                var_name = token[1]
+                if var_name not in self.variables:
+                    raise NameError(f"Undefined variable: {var_name}")
+                expr_parts.append(var_name)
+            
             elif token_type == "OPERATOR":
-                expr_parts.append(value)
+                expr_parts.append(token[1])
+            
             elif token_type == "LPAREN":
                 expr_parts.append("(")
+            
             elif token_type == "RPAREN":
                 expr_parts.append(")")
         
@@ -75,8 +99,19 @@ class FermiEngine:
         
         # Evaluate using Python's eval (safe because we control the tokens)
         try:
-            result = eval(expr_string, {"__builtins__": {}}, {})
-            return float(result)
+            # Eval with access to variables (including temp distribution arrays)
+            result = eval(expr_string, {"__builtins__": {}}, self.variables)
+            
+            # Clean up temporary distribution variables
+            temp_vars = [k for k in self.variables.keys() if k.startswith("_dist_")]
+            for k in temp_vars:
+                del self.variables[k]
+            
+            if isinstance(result, np.ndarray):
+                return result
+            else:
+                return float(result)
+        
         except Exception as e:
             raise ParseError(f"Evaluation error: {e}")
     
@@ -91,6 +126,7 @@ class FermiEngine:
             Dictionary with:
             - {"type": "comment"} for comments
             - {"type": "assignment", "var": "x", "value": 10.0} for assignments
+            - {"type": "assignment", "var": "x", "value": np.ndarray} for distributions
             - {"type": "empty"} for blank lines
             - {"type": "error", "message": "..."} for errors
         
@@ -114,7 +150,7 @@ class FermiEngine:
                 var_name = parsed["var"]
                 expr = parsed["expr"]
                 
-                # Evaluate the expression
+                # Evaluate the expression (returns float or np.ndarray)
                 value = self.evaluate_expression(expr)
                 
                 # Store in variables
