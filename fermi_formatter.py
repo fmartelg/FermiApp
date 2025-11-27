@@ -1,4 +1,5 @@
 """Number formatting utilities for Fermi Calculator"""
+import numpy as np
 
 
 def parse_number(s: str) -> float:
@@ -83,3 +84,22 @@ def format_number(n: float) -> str:
             return f"{n:.0f}"
         else:
             return f"{n:.2f}"
+
+
+def format_distribution(arr: np.ndarray) -> str:
+    """
+    Format distribution as P10, P50, P90 percentiles.
+    
+    Args:
+        arr: numpy array of samples (e.g., 100K samples)
+    
+    Returns:
+        Formatted string like "2.00M 2.50M 3.00M (P10, P50, P90)"
+    
+    Examples:
+        >>> samples = np.random.uniform(2e6, 3e6, 100000)
+        >>> format_distribution(samples)
+        "2.00M 2.50M 3.00M (P10, P50, P90)"
+    """
+    p10, p50, p90 = np.percentile(arr, [10, 50, 90])
+    return f"{format_number(p10)} {format_number(p50)} {format_number(p90)} (P10, P50, P90)"
