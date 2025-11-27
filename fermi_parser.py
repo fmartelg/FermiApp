@@ -95,6 +95,7 @@ def tokenize(expr: str) -> List[Tuple[str, Any]]:
     Returns:
         List of (token_type, value) tuples:
         - ("NUMBER", float_value) for numbers
+        - ("UNIFORM", min_val, max_val) for uniform distributions (min max)
         - ("OPERATOR", op_string) for operators (+, -, *, /)
         - ("VARIABLE", var_name) for variable references
         - ("LPAREN", "(") for left parenthesis
@@ -106,14 +107,21 @@ def tokenize(expr: str) -> List[Tuple[str, Any]]:
         
         >>> tokenize("x + 2.5K")
         [('VARIABLE', 'x'), ('OPERATOR', '+'), ('NUMBER', 2500.0)]
+        
+        >>> tokenize("2M 3M")
+        [('UNIFORM', 2000000.0, 3000000.0)]
     """
     from fermi_formatter import parse_number
     
     tokens = []
-    expr = expr.replace(" ", "")  # Remove all spaces
     i = 0
     
     while i < len(expr):
+        # Skip whitespace
+        if expr[i].isspace():
+            i += 1
+            continue
+        
         # Try to match a number (with optional K/M/B suffix)
         match = re.match(r'^\d+\.?\d*[KMB]?', expr[i:])
         if match:
@@ -155,4 +163,28 @@ def tokenize(expr: str) -> List[Tuple[str, Any]]:
         # If we get here, it's an invalid character
         raise ParseError(f"Invalid character in expression: '{char}'")
     
-    return tokens
+    # Post-process: Convert consecutive NUMBER tokens into UNIFORM tokens
+    processed_tokens = []
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+        
+        # Check if this is a NUMBER followed by another NUMBER
+        if (token[0] == "NUMBER" and 
+            i + 1 < len(tokens) and 
+            tokens[i + 1][0] == "NUMBER"):
+            
+            # Combine into UNIFORM token
+            min_val = token[1]
+            max_val = tokens[i + 1][1]
+            
+            if min_val > max_val:
+                raise ParseError(f"Invalid uniform distribution: min ({min_val}) > max ({max_val})")
+            
+            processed_tokens.append(("UNIFORM", min_val, max_val))
+            i += 2  # Skip both numbers
+        else:
+            processed_tokens.append(token)
+            i += 1
+    
+    return processed_tokens

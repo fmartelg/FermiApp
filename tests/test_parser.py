@@ -142,3 +142,55 @@ class TestTokenize:
     def test_tokenize_invalid_token(self):
         with pytest.raises(ParseError):
             tokenize("x @ y")  # @ is not a valid operator
+
+
+class TestTokenizeDistributions:
+    """Tests for tokenizing uniform distributions"""
+    
+    def test_tokenize_uniform_simple(self):
+        tokens = tokenize("10 20")
+        assert tokens == [("UNIFORM", 10.0, 20.0)]
+    
+    def test_tokenize_uniform_with_suffix(self):
+        tokens = tokenize("2M 3M")
+        assert tokens == [("UNIFORM", 2000000.0, 3000000.0)]
+    
+    def test_tokenize_uniform_mixed_suffix(self):
+        tokens = tokenize("500K 1M")
+        assert tokens == [("UNIFORM", 500000.0, 1000000.0)]
+    
+    def test_tokenize_uniform_decimal(self):
+        tokens = tokenize("0.5 1.5")
+        assert tokens == [("UNIFORM", 0.5, 1.5)]
+    
+    def test_tokenize_uniform_in_expression(self):
+        tokens = tokenize("x + 5 10")
+        assert tokens == [
+            ("VARIABLE", "x"),
+            ("OPERATOR", "+"),
+            ("UNIFORM", 5.0, 10.0)
+        ]
+    
+    def test_tokenize_multiple_uniforms(self):
+        tokens = tokenize("10 20 + 5 10")
+        assert tokens == [
+            ("UNIFORM", 10.0, 20.0),
+            ("OPERATOR", "+"),
+            ("UNIFORM", 5.0, 10.0)
+        ]
+    
+    def test_tokenize_single_number_stays_number(self):
+        tokens = tokenize("10")
+        assert tokens == [("NUMBER", 10.0)]
+    
+    def test_tokenize_uniform_invalid_order_raises_error(self):
+        with pytest.raises(ParseError, match="min.*>.*max"):
+            tokenize("20 10")  # max before min
+    
+    def test_tokenize_uniform_with_variable(self):
+        tokens = tokenize("x * 2M 3M")
+        assert tokens == [
+            ("VARIABLE", "x"),
+            ("OPERATOR", "*"),
+            ("UNIFORM", 2000000.0, 3000000.0)
+        ]
