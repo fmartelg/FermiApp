@@ -430,7 +430,7 @@ FINAL RESULT: percentage
 
 ## Keybindings
 
-- `Ctrl+Enter`: Execute model (calculate all results)
+- `f5`: Execute model (calculate all results)
 - `Ctrl+L`: Clear all input and results
 - `Ctrl+S`: Save current model to file
 - `Ctrl+O`: Load model from file

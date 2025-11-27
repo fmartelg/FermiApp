@@ -1,4 +1,4 @@
-# Fermi Sprint Plans
+# Sprint Plan
 
 ## Sprint 1 - Core Engine + Basic UI
 
