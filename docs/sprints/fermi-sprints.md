@@ -314,16 +314,16 @@ x = 100
 
 ### Definition of Done
 
-- [ ] All unit tests passing (parser, formatter, engine)
-- [ ] Textual app launches without errors
-- [ ] Two-panel layout displays correctly
-- [ ] Calculate button executes model
-- [ ] Results display aligned with input
-- [ ] All 4 test scenarios work correctly
-- [ ] K/M/B suffixes parse and format correctly
-- [ ] Variables can reference other variables
-- [ ] Comments are preserved in output
-- [ ] Basic error handling (undefined variable shows error message)
+- [x] All unit tests passing (parser, formatter, engine)
+- [x] Textual app launches without errors
+- [x] Two-panel layout displays correctly
+- [x] Calculate button executes model
+- [x] Results display aligned with input
+- [x] All 4 test scenarios work correctly
+- [x] K/M/B suffixes parse and format correctly
+- [x] Variables can reference other variables
+- [x] Comments are preserved in output
+- [x] Basic error handling (undefined variable shows error message)
 
 ### Deliverable
 
