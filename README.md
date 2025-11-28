@@ -1,5 +1,7 @@
 # Fermi Calculator
 
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+
 A Textual TUI application for performing Fermi estimations with uncertainty quantification using Monte Carlo simulation.
 
 ![Screenshot](./Screenshot%202025-11-27%20222310.png)

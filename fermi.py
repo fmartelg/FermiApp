@@ -6,6 +6,7 @@ import numpy as np
 from fermi_engine import FermiEngine
 from fermi_formatter import format_number, format_distribution
 
+__version__ = "0.1.0"
 
 class FermiApp(App):
     """A Fermi estimation calculator with two-panel UI"""
