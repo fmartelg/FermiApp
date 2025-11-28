@@ -358,19 +358,19 @@ total_pianos = households * pianos_per_household
 
 ### Definition of Done
 
-- [ ] numpy added to dependencies and installed
-- [ ] Parser detects `min max` pattern and creates UNIFORM tokens
-- [ ] Engine generates 100K samples for uniform distributions
-- [ ] Engine stores arrays in variables dictionary
-- [ ] Scalar * scalar operations return scalars
-- [ ] Scalar * array operations return arrays (broadcasting)
-- [ ] Array * array operations return arrays (element-wise)
-- [ ] `format_distribution()` calculates and formats P10/P50/P90
-- [ ] UI displays distributions with three percentile values
-- [ ] All 4 test scenarios pass
-- [ ] Existing scalar tests still pass (backward compatibility)
-- [ ] Unit tests for uniform distribution functionality (15+ new tests)
-- [ ] Mixed scalar/distribution models work correctly
+- [x] numpy added to dependencies and installed
+- [x] Parser detects `min max` pattern and creates UNIFORM tokens
+- [x] Engine generates 100K samples for uniform distributions
+- [x] Engine stores arrays in variables dictionary
+- [x] Scalar * scalar operations return scalars
+- [x] Scalar * array operations return arrays (broadcasting)
+- [x] Array * array operations return arrays (element-wise)
+- [x] `format_distribution()` calculates and formats P10/P50/P90
+- [x] UI displays distributions with three percentile values
+- [x] All 4 test scenarios pass
+- [x] Existing scalar tests still pass (backward compatibility)
+- [x] Unit tests for uniform distribution functionality (15+ new tests)
+- [x] Mixed scalar/distribution models work correctly
 
 ### Deliverable
 
