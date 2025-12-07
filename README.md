@@ -4,7 +4,7 @@
 
 A Textual TUI application for performing Fermi estimations with uncertainty quantification using Monte Carlo simulation.
 
-![Screenshot](./Screenshot%202025-11-27%20222310.png)
+![Screenshot](./Screenshot.png)
 
 Inspired by and based on Nuño Sempere's [fermi CLI calculator](https://git.nunosempere.com/NunoSempere/fermi).
 
@@ -30,8 +30,9 @@ Inspired by and based on Nuño Sempere's [fermi CLI calculator](https://git.nuno
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/fermi_calc.git
-cd fermi_calc
+git clone https://github.com/fmartelg/FermiApp.git
+cd FermiApp
+
 
 # Create and activate a virtual environment
 python -m venv venv
@@ -153,7 +154,7 @@ The **P10-P90 range (119K-301K)** represents an 80% credible interval. You might
 ### Project Structure
 
 ```
-fermi_calc/
+FermiApp/
 ├── docs/
 │   ├── fermi-spec.md           # Complete specification
 │   └── sprints/                # Development sprint notes
@@ -167,7 +168,7 @@ fermi_calc/
 ├── fermi_parser.py             # Expression parser and tokenizer
 ├── fermi.py                    # Main application entry point
 ├── fermi.tcss                  # Textual CSS styling
-├── LICENSE                     # MIT License
+├── LICENSE.md                  # MIT License
 ├── README.md                   # This file
 └── requirements.txt            # Python dependencies
 ```
@@ -179,7 +180,7 @@ fermi_calc/
 pytest tests/
 
 # Run with coverage
-pytest --cov=. tests/
+pytest --cov=fermi_engine --cov=fermi_parser --cov=fermi_formatter --cov=fermi tests/
 ```
 
 ## Roadmap
@@ -192,32 +193,23 @@ pytest --cov=. tests/
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or pull requests.
+Contributions are welcome! Please feel free to submit issues or pull requests.  [Here's how](https://github.com/firstcontributions/first-contributions).
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Issues? [GitHub Issues](https://github.com/fmartelg/fermi_calc/issues)
 
 ## Credits
 
 This project is inspired by and based on Nuño Sempere's [fermi CLI calculator](https://git.nunosempere.com/NunoSempere/fermi), which provides a command-line interface for similar Fermi estimation workflows.
-
-## License
-
-MIT License - See [license.md](license.md) for details.
-
-## Contact
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/fermi_calc/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/fermi_calc/discussions)
 
 ## Acknowledgments
 
 - Nuño Sempere for the original fermi calculator concept
 - The Textual framework team for the excellent TUI library
 - The Python scientific computing community
+
+## License
+
+MIT License - See [LICENSE.md](LICENSE.md) for details.
 
 ---
 
