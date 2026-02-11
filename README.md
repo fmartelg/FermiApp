@@ -2,6 +2,8 @@
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/fmartelg/FermiApp)
+
 A Textual TUI application for performing Fermi estimations with uncertainty quantification using Monte Carlo simulation.
 
 ![Screenshot](./Screenshot.png)
